@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { v4 as uuidv4 } from "uuid";
 
 import { currentProfile } from "@/lib/current-profile";
-import { CreateServerFields } from "./type";
+import { CreateServerFields } from "./schema";
 import { db } from "@/lib/db";
 
 export async function createServer(data: CreateServerFields) {
