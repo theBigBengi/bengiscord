@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
 import { initialProfile } from "@/lib/initial-profile";
+import { CreateFirstServerModal } from "@/components/modals/create-first-server-modal";
 
 const SetupPage = async () => {
   const profile = await initialProfile();
@@ -23,7 +24,11 @@ const SetupPage = async () => {
   }
 
   // but if user is not part of any server
-  return <div>Create a server</div>;
+  return (
+    <div>
+      <CreateFirstServerModal />
+    </div>
+  );
 };
 
 export default SetupPage;
