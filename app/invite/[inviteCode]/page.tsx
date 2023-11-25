@@ -21,6 +21,7 @@ const InviteCodePage = async ({ params }: InviteCodePageProps) => {
     return redirect("/");
   }
 
+  // If user is a part form the server, redirct him to the server page
   const existingServer = await db.server.findFirst({
     where: {
       inviteCode: params.inviteCode,
@@ -36,6 +37,7 @@ const InviteCodePage = async ({ params }: InviteCodePageProps) => {
     return redirect(`/servers/${existingServer.id}`);
   }
 
+  // if the user is not in the server, join him
   const server = await db.server.update({
     where: {
       inviteCode: params.inviteCode,

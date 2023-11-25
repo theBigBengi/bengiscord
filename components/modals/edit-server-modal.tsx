@@ -1,0 +1,143 @@
+"use client";
+
+// import axios from "axios";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+import { FileUpload } from "../file-upload";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  CreateServerFields,
+  CreateServerSchema,
+} from "@/lib/actions/create-server/schema";
+import { useModal } from "@/hooks/use-modal-store";
+import { updateServer } from "@/lib/actions/update-server";
+import { Server } from "lucide-react";
+
+const formOptions = {
+  resolver: zodResolver(CreateServerSchema),
+  defaultValues: {
+    imageUrl: "",
+    name: "",
+  },
+};
+
+export const EditServerModal = () => {
+  const { isOpen, onClose, type, data } = useModal();
+  const isModalOpen = isOpen && type === "editServer";
+
+  const form = useForm<CreateServerFields>(formOptions);
+  const isLoading = form.formState.isSubmitting;
+
+  const { server } = data;
+
+  useEffect(() => {
+    if (server) {
+      form.setValue("name", server.name);
+      form.setValue("imageUrl", server.imageUrl);
+    }
+  }, [form, server, isOpen]);
+
+  const handleCloseModal = () => {
+    form.reset();
+    onClose();
+  };
+
+  const handleSubmit = async (values: CreateServerFields) => {
+    try {
+      await updateServer(server!.id, values);
+      form.reset();
+      onClose();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
+      <DialogContent className='bg-white text-black p-0 overflow-hidden'>
+        <DialogHeader className='pt-8 px-6'>
+          <DialogTitle className='text-2xl text-center font-bold'>
+            Customize your server
+          </DialogTitle>
+          <DialogDescription className='text-center text-zinc-500'>
+            Give your server a personality with a name and an image. You can
+            always change it later.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className='space-y-8'
+          >
+            <div className='space-y-8 px-6'>
+              <div className='flex items-center justify-center text-center'>
+                <FormField
+                  control={form.control}
+                  name='imageUrl'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <FileUpload
+                          onChange={field.onChange}
+                          endpoint='serverImage'
+                          value={field.value}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name='name'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-secondary/70'>
+                      Server name
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className='bg-zinc-300/50 border-0 focus-visible:ring-0 text-black focus-visible:ring-offset-0'
+                        placeholder='Enter server name'
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter className='bg-gray-100 px-6 py-4'>
+              <Button variant='primary' disabled={isLoading}>
+                Save
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
