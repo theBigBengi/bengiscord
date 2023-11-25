@@ -7,6 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 import { ServerHeader } from "./server-header";
+import {
+  ServerWithMembersWithProfiles,
+  ServerWithMembersWithProfilesAndChannels,
+} from "@/types";
 
 // import { ServerHeader } from "./server-header";
 // import { ServerSearch } from "./server-search";
@@ -15,7 +19,8 @@ import { ServerHeader } from "./server-header";
 // import { ServerMember } from "./server-member";
 
 interface ServerSidebarProps {
-  serverId: string;
+  server: ServerWithMembersWithProfilesAndChannels;
+  profileId: string;
 }
 
 // const iconMap = {
@@ -32,34 +37,10 @@ interface ServerSidebarProps {
 //   [MemberRole.ADMIN]: <ShieldAlert className='h-4 w-4 mr-2 text-rose-500' />,
 // };
 
-export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
-  const profile = await currentProfile();
-
-  if (!profile) {
-    return redirect("/");
-  }
-
-  const server = await db.server.findUnique({
-    where: {
-      id: serverId,
-    },
-    include: {
-      channels: {
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
-      members: {
-        include: {
-          profile: true,
-        },
-        orderBy: {
-          role: "asc",
-        },
-      },
-    },
-  });
-
+export const ServerSidebar = async ({
+  server,
+  profileId,
+}: ServerSidebarProps) => {
   const textChannels = server?.channels.filter(
     (channel) => channel.type === ChannelType.TEXT
   );
@@ -70,7 +51,7 @@ export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
     (channel) => channel.type === ChannelType.VIDEO
   );
   const members = server?.members.filter(
-    (member) => member.profileId !== profile.id
+    (member) => member.profileId !== profileId
   );
 
   if (!server) {
@@ -78,7 +59,7 @@ export const ServerSidebar = async ({ serverId }: ServerSidebarProps) => {
   }
 
   const role = server.members.find(
-    (member) => member.profileId === profile.id
+    (member) => member.profileId === profileId
   )?.role;
 
   return (

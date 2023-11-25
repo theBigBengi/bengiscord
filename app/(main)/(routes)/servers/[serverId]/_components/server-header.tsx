@@ -20,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useModal } from "@/hooks/use-modal-store";
+import { useEffect } from "react";
 
 interface ServerHeaderProps {
   server: ServerWithMembersWithProfiles;
@@ -27,7 +28,11 @@ interface ServerHeaderProps {
 }
 
 export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
-  const { onOpen } = useModal();
+  const { onOpen, setData } = useModal();
+
+  useEffect(() => {
+    setData({ server });
+  }, [server, setData]);
 
   const isAdmin = role === MemberRole.ADMIN;
   const isModerator = isAdmin || role === MemberRole.MODERATOR;
@@ -43,7 +48,7 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
       <DropdownMenuContent className='w-56 text-xs font-medium text-black dark:text-neutral-400 space-y-[2px]'>
         {isModerator && (
           <DropdownMenuItem
-            onClick={() => onOpen("invite", { server })}
+            onClick={() => onOpen("invite")}
             className='text-indigo-600 dark:text-indigo-400 px-3 py-2 text-sm cursor-pointer'
           >
             Invite People
@@ -52,7 +57,7 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
         )}
         {isAdmin && (
           <DropdownMenuItem
-            onClick={() => onOpen("editServer", { server })}
+            onClick={() => onOpen("editServer")}
             className='px-3 py-2 text-sm cursor-pointer'
           >
             Server Settings
@@ -61,7 +66,7 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
         )}
         {isAdmin && (
           <DropdownMenuItem
-            // onClick={() => onOpen("members", { server })}
+            onClick={() => onOpen("members")}
             className='px-3 py-2 text-sm cursor-pointer'
           >
             Manage Members
@@ -70,7 +75,7 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
         )}
         {isModerator && (
           <DropdownMenuItem
-            // onClick={() => onOpen("createChannel")}
+            onClick={() => onOpen("createChannel")}
             className='px-3 py-2 text-sm cursor-pointer'
           >
             Create Channel
@@ -80,7 +85,7 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
         {isModerator && <DropdownMenuSeparator />}
         {isAdmin && (
           <DropdownMenuItem
-            // onClick={() => onOpen("deleteServer", { server })}
+            onClick={() => onOpen("deleteServer")}
             className='text-rose-500 px-3 py-2 text-sm cursor-pointer'
           >
             Delete Server
@@ -89,7 +94,7 @@ export const ServerHeader = ({ server, role }: ServerHeaderProps) => {
         )}
         {!isAdmin && (
           <DropdownMenuItem
-            // onClick={() => onOpen("leaveServer", { server })}
+            onClick={() => onOpen("leaveServer")}
             className='text-rose-500 px-3 py-2 text-sm cursor-pointer'
           >
             Leave Server
