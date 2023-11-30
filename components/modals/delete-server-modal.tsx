@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -13,27 +13,39 @@ import {
 import { useModal } from "@/hooks/use-modal-store";
 import { Button } from "@/components/ui/button";
 import { deleteServer } from "@/lib/actions/delete-server";
+import { useRouter } from "next/navigation";
 
 export const DeleteServerModal = () => {
-  const { isOpen, onClose, type, data: modalData } = useModal();
+  const { isOpen, onClose: closeModal, type, data: modalData } = useModal();
 
   const isModalOpen = isOpen && type === "deleteServer";
   const { server } = modalData;
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isHandlingDelete, setIsHandlingDelete] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    // Prefetch the root page
+    router.prefetch("/");
+  }, [router]);
 
   const handleDelete = async () => {
     try {
-      setIsLoading(true);
+      setIsHandlingDelete(true);
       await deleteServer(server!.id);
+      closeModal();
+      // Do a fast client-side transition to the already prefetched root page
+      router.replace("/");
     } catch (error) {
+      console.log("Error");
     } finally {
-      setIsLoading(false);
+      setIsHandlingDelete(false);
     }
   };
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={onClose}>
+    <Dialog open={isModalOpen} onOpenChange={closeModal}>
       <DialogContent className='bg-white text-black p-0 overflow-hidden'>
         <DialogHeader className='pt-8 px-6'>
           <DialogTitle className='text-2xl text-center font-bold'>
@@ -49,12 +61,16 @@ export const DeleteServerModal = () => {
         </DialogHeader>
         <DialogFooter className='bg-gray-100 px-6 py-4'>
           <div className='flex items-center justify-between w-full'>
-            <Button disabled={isLoading} onClick={onClose} variant='ghost'>
+            <Button
+              disabled={isHandlingDelete}
+              onClick={closeModal}
+              variant='ghost'
+            >
               Cancel
             </Button>
             <Button
+              disabled={isHandlingDelete}
               onClick={handleDelete}
-              disabled={isLoading}
               variant='primary'
             >
               Confirm

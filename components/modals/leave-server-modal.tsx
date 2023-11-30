@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -13,6 +13,7 @@ import {
 import { useModal } from "@/hooks/use-modal-store";
 import { Button } from "@/components/ui/button";
 import { leaveServer } from "@/lib/actions/leave-server";
+import { useRouter } from "next/navigation";
 
 export const LeaveServerModal = () => {
   const { isOpen, onClose, type, data: modalData } = useModal();
@@ -22,10 +23,19 @@ export const LeaveServerModal = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  const router = useRouter();
+
+  useEffect(() => {
+    // Prefetch the root page
+    router.prefetch("/");
+  }, [router]);
+
   const handleLeave = async () => {
     try {
       setIsLoading(true);
       await leaveServer(server!.id);
+      // Do a fast client-side transition to the already prefetched root page
+      router.replace("/");
     } catch (error) {
     } finally {
       setIsLoading(false);

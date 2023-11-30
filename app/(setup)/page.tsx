@@ -6,7 +6,7 @@ import { CreateFirstServerModal } from "@/components/modals/create-first-server-
 
 const SetupPage = async () => {
   const profile = await initialProfile();
-
+  //
   // Search throgh all servers and find the first one
   // that has that profile id in one of the members of thw server
   const server = await db.server.findFirst({
